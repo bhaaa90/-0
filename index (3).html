@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>مولّد الاختبارات</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .question {
+      background: #f9f9f9;
+      padding: 15px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .question input {
+      margin-bottom: 5px;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .link-box {
+      margin-top: 20px;
+      background: #ecf0f1;
+      padding: 10px;
+      border-radius: 6px;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✏️ مولّد الاختبارات</h1>
+    <p>اكتب عنوان الاختبار وأضف الأسئلة، ثم شارك الرابط مع الطلاب!</p>
+    <input type="text" id="quizTitle" placeholder="عنوان الاختبار" />
+    <div id="questions"></div>
+    <button onclick="addQuestion()">➕ أضف سؤال</button>
+    <button onclick="createQuiz()">✅ إنشاء الاختبار</button>
+    <div id="quizLink" class="link-box"></div>
+  </div>
+  <script>
+    let questionCount = 0;
+
+    function addQuestion() {
+      questionCount++;
+      const container = document.getElementById("questions");
+      const div = document.createElement("div");
+      div.className = "question";
+      div.innerHTML = `
+        <input type="text" placeholder="نص السؤال" class="qText" />
+        <input type="text" placeholder="الخيار 1" class="opt" />
+        <input type="text" placeholder="الخيار 2" class="opt" />
+        <input type="text" placeholder="الخيار 3" class="opt" />
+        <input type="text" placeholder="الخيار 4" class="opt" />
+        <input type="number" placeholder="رقم الإجابة الصحيحة (1-4)" class="correctIndex" min="1" max="4" />
+      `;
+      container.appendChild(div);
+    }
+
+    function createQuiz() {
+      const title = document.getElementById("quizTitle").value.trim();
+      if (!title) return alert("يرجى كتابة عنوان للاختبار");
+      const questions = [];
+      const qDivs = document.querySelectorAll(".question");
+
+      qDivs.forEach(q => {
+        const qText = q.querySelector(".qText").value.trim();
+        const options = Array.from(q.querySelectorAll(".opt")).map(opt => opt.value.trim());
+        const correctIndex = parseInt(q.querySelector(".correctIndex").value) - 1;
+
+        if (!qText || options.some(o => !o) || isNaN(correctIndex) || correctIndex < 0 || correctIndex > 3) {
+          return;
+        }
+
+        questions.push({ qText, options, correctIndex });
+      });
+
+      if (questions.length === 0) return alert("أضف سؤالاً واحدًا على الأقل");
+
+      const quizData = { title, questions };
+      const encoded = encodeURIComponent(JSON.stringify(quizData));
+      const url = `${location.origin}${location.pathname.replace("index.html", "")}quiz.html#${encoded}`;
+
+      document.getElementById("quizLink").innerHTML = `
+        رابط الاختبار:<br><a href="${url}" target="_blank">${url}</a>
+      `;
+    }
+  </script>
+</body>
+</html>

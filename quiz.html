@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>حل الاختبار</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f4f6f8;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    .question {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .question label {
+      display: block;
+      margin: 5px 0;
+    }
+    button {
+      background: #2ecc71;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      margin-top: 20px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #27ae60;
+    }
+    .result {
+      margin-top: 30px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 id="quizTitle">الاختبار</h2>
+    <form id="quizForm"></form>
+    <button onclick="submitQuiz()">إرسال</button>
+    <div id="result" class="result"></div>
+  </div>
+  <script>
+    const raw = decodeURIComponent(location.hash.slice(1));
+    let quizData;
+
+    try {
+      quizData = JSON.parse(raw);
+    } catch (e) {
+      document.body.innerHTML = '<h2 style="text-align:center;color:red">❌ رابط الاختبار غير صالح</h2>';
+      throw e;
+    }
+
+    document.getElementById("quizTitle").textContent = quizData.title;
+    const form = document.getElementById("quizForm");
+
+    quizData.questions.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.className = "question";
+      div.innerHTML = `<strong>${i+1}. ${q.qText}</strong><br>`;
+      q.options.forEach((opt, j) => {
+        div.innerHTML += `
+          <label>
+            <input type="radio" name="q${i}" value="${j}" />
+            ${opt}
+          </label>
+        `;
+      });
+      form.appendChild(div);
+    });
+
+    function submitQuiz() {
+      let score = 0;
+      quizData.questions.forEach((q, i) => {
+        const selected = document.querySelector('input[name="q'+i+'"]:checked');
+        if (selected && parseInt(selected.value) === q.correctIndex) {
+          score++;
+        }
+      });
+
+      const total = quizData.questions.length;
+      const percentage = Math.round((score / total) * 100);
+      document.getElementById("result").innerHTML = `✅ لقد حصلت على ${score} من ${total} (${percentage}%)`;
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+  </script>
+</body>
+</html>
